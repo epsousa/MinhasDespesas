@@ -1,5 +1,7 @@
 package com.br.minhasdespesas.model;
 
+import com.br.minhasdespesas.enums.TipoDespesa;
+
 /**
  * Classe para representar despesa.
  * @author evair
@@ -21,6 +23,19 @@ public class Despesa {
 	 * valor da despesa.
 	 */
 	private Double valor;
+	
+	/**
+	 * Tipo da despesa cadastrada.
+	 */
+	private TipoDespesa tipoDespesa;		
+	
+	public TipoDespesa getTipoDespesa() {
+		return tipoDespesa;
+	}
+
+	public void setTipoDespesa(TipoDespesa tipoDespesa) {
+		this.tipoDespesa = tipoDespesa;
+	}
 
 	public int getId() {
 		return id;
@@ -48,7 +63,11 @@ public class Despesa {
 
 	@Override
 	public String toString() {
-		return "Despesa: id=" + id + ", nome=" + nome + ", valor=" + valor;
+		return "Despesa= id:" + id + ", nome:" + nome + ", valor:" + valor + ", Tipo de despesa:" + tipoDespesa.getValue();
 	}
+
+	
+
+	
 
 }

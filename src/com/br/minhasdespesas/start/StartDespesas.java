@@ -7,26 +7,51 @@ import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 import com.br.minhasdespesas.bll.GerenciaDespesas;
+import com.br.minhasdespesas.enums.TipoDespesa;
 import com.br.minhasdespesas.model.Despesa;
+import com.br.minhasdespesas.model.Responsavel;
 
-public class AdicionaDespesas {
-	//scanner para ler entrada do usuário
+public class StartDespesas {
+	// scanner para ler entrada do usuário
 	static Scanner sc = new Scanner(System.in);
-	//classe responsavel por gerencia as despesas
+	// classe responsavel por gerencia as despesas
 	static GerenciaDespesas calc = new GerenciaDespesas();
-	//class despesa para gerenciar os dados do usuário.
+	// classe despesa para gerenciar os dados de despesa.
 	static Despesa desp = new Despesa();
+	// classe Reponsavel para gerenciar os dados do responsavel.
+	static Responsavel resp = new Responsavel();
 
-	//classe principal.
+	// classe principal.
 	public static void main(String[] args) {
 
 		retornaLinha();
 		System.out.println("Seja bem vindo para o gerenciador de despesas:");
 		retornaLinha();
 
+		System.out.println("Por favor, insira seu nome:");
+		String nome = sc.next();
+		resp.setNome(nome);
+		int idade = -1;
+		System.out.println("Por favor, Digite sua idade:");
+		while (idade == -1) {
+			try {
+				idade = sc.nextInt();
+				if (idade <= 0) {
+					System.out.println("Digite uma idade valida.");
+					idade = -1;
+				} else {
+					resp.setIdade(idade);
+				}
+			} catch (Exception ex) {
+				System.out.println("Digite uma idade valida.");
+				sc.next();
+				idade = -1;
+			}
+		}
 		int resp = 1;
-		
-		//enquanto a resposta enviada pela função menu() for diferente de zero o sistema fica em funcionamento.
+
+		// enquanto a resposta enviada pela função menu() for diferente de zero
+		// o sistema fica em funcionamento.
 		while (resp != 0) {
 
 			resp = menu();
@@ -45,8 +70,9 @@ public class AdicionaDespesas {
 				selecionarDespesa();
 				break;
 			case 0:
-				salvarArquivoDeDespesas();
 				System.out.println("Obrigado por usar nosso sistema! :-)");
+				salvarArquivoDeDespesas();
+				System.out.println("Seu relatorio foi gerado com sucesso!");
 				break;
 			}
 
@@ -55,7 +81,9 @@ public class AdicionaDespesas {
 	}
 
 	/**
-	 * Grava as despesas inseridas pelo usuário em um arquivo txt com o nome gerado atraves da data e hora de execução na mesma pasta de execução do sistema.
+	 * Grava as despesas inseridas pelo usuário em um arquivo txt com o nome
+	 * gerado atraves da data e hora de execução na mesma pasta de execução do
+	 * sistema.
 	 */
 	@SuppressWarnings("resource")
 	private static void salvarArquivoDeDespesas() {
@@ -73,9 +101,18 @@ public class AdicionaDespesas {
 			return;
 		}
 
+		try {
+			writer.write("Despesas geradas por: " + resp.getNome() + ", cuja a idade é: " + resp.getIdade() + "\n");
+			writer.write("-------------------------------------------------------------------------------------\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+
 		for (Despesa desp : calc.obtemDespesas()) {
 			try {
-				writer.write("Despesa: " + desp.getNome() + " Valor: R$ " + desp.getValor() + "\n");
+				writer.write("Despesa: " + desp.getNome() + " Valor: R$ " + desp.getValor() + " Tipo da despesa: "
+						+ desp.getTipoDespesa().getValue() + "\n");
 			} catch (IOException e) {
 				e.printStackTrace();
 				return;
@@ -83,7 +120,41 @@ public class AdicionaDespesas {
 		}
 
 		try {
-			writer.write("Valor total das despesas: R$ " + calc.retornaTotalDespesas());
+			writer.write("-------------------------------------------------------------------------------------\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+
+		try {
+			writer.write("Valor total das despesas Fixas: R$ " + calc.retornaDespesasPorTipo(TipoDespesa.FIXAS) + "\n");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+			writer.write("-------------------------------------------------------------------------------------\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+
+		try {
+			writer.write("Valor total das despesas Variaveis: R$ " + calc.retornaDespesasPorTipo(TipoDespesa.VARIAVEIS)
+					+ ".\n");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+			writer.write("-------------------------------------------------------------------------------------\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+
+		try {
+			writer.write("Valor total de todas as despesas: R$ " + calc.retornaTotalDespesas() + "\n");
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -97,7 +168,9 @@ public class AdicionaDespesas {
 	}
 
 	/**
-	 * Retorna o valor inteiro inserido pelo usuário sobre a decisão de atividade.
+	 * Retorna o valor inteiro inserido pelo usuário sobre a decisão de
+	 * atividade.
+	 * 
 	 * @return
 	 */
 	public static int menu() {
@@ -115,6 +188,7 @@ public class AdicionaDespesas {
 				decisao = sc.nextInt();
 				if (decisao < 0 || decisao > 4) {
 					decisao = -1;
+					System.out.println("Insira um valor entre 0 e 4 inclusive");
 				}
 			} catch (Exception ex) {
 				System.out.println("Insira um valor entre 0 e 4 inclusive");
@@ -128,9 +202,17 @@ public class AdicionaDespesas {
 	 * Permite o usuário adicionar uma despesa.
 	 */
 	public static void adicionarDespesa() {
-		System.out.println("Por favor, adicione um nome de uma despesa:");
-		String dsDesp = sc.next();
 
+		String dsDesp = "";
+		System.out.println("Por favor, adicione um nome de uma despesa:");
+		while (dsDesp.equals("")) {
+			dsDesp = sc.next();
+			if (calc.validaSeNomeExisteNaLista(dsDesp)) {
+				System.out.println("Despesa já cadastrada com o nome " + dsDesp
+						+ ", Por favor, digite uma despesa ainda não cadastrada.");
+				dsDesp = "";
+			}
+		}
 		desp.setNome(dsDesp);
 		retornaLinha();
 		while (desp.getValor() == null) {
@@ -140,6 +222,23 @@ public class AdicionaDespesas {
 				desp.setValor(val);
 			} catch (Exception ex) {
 				System.out.println("Adicione um valor numérico.");
+				sc.next();
+			}
+		}
+
+		while (desp.getTipoDespesa() == null) {
+			System.out.println("Por favor, adicione o tipo da despesa, 1 para fixo, 2 para variável.:");
+			int i = sc.nextInt();
+			try {
+				if (i == 1) {
+					desp.setTipoDespesa(TipoDespesa.FIXAS);
+				} else if (i == 2) {
+					desp.setTipoDespesa(TipoDespesa.VARIAVEIS);
+				} else {
+					System.out.println("Por favor, insira 1 para fixo, 2 para variável.:");
+				}
+			} catch (Exception ex) {
+				System.out.println("Selecione 1 para fixo ou 2 para variavel");
 				sc.next();
 			}
 		}
@@ -155,7 +254,8 @@ public class AdicionaDespesas {
 	 * Permite o usuário alterar uma despesa.
 	 */
 	private static void alterarDespesa() {
-		//verifica se as despesas estao vazias, se estiver, exibe mensagem e encerra a execução da função.
+		// verifica se as despesas estao vazias, se estiver, exibe mensagem e
+		// encerra a execução da função.
 		if (calc.obtemDespesas().isEmpty()) {
 			System.out.println("Não há despesas para serem alteradas.");
 			return;
@@ -164,8 +264,9 @@ public class AdicionaDespesas {
 		System.out.println("Insira o id da despesa que deseja alterar conforme abaixo:");
 		listaDespesas(-1);
 		Integer v = null;
-		
-		//faz com que o usuário digite um valor inteiro dentre os existentes na listagem de despesas.
+
+		// faz com que o usuário digite um valor inteiro dentre os existentes na
+		// listagem de despesas.
 		while (v == null) {
 			try {
 				v = sc.nextInt();
@@ -179,8 +280,17 @@ public class AdicionaDespesas {
 		try {
 			if (sc.nextInt() == 1) {
 				System.out.println("Digite um novo nome para essa despesa");
-				String nome = sc.next();
-				desp.setNome(nome);
+				String dsDesp = "";
+				System.out.println("Por favor, adicione um nome de uma despesa:");
+				while (dsDesp.equals("")) {
+					dsDesp = sc.next();
+					if (calc.validaSeNomeExisteNaLista(dsDesp)) {
+						System.out.println("Despesa já cadastrada com o nome " + dsDesp
+								+ ", Por favor, digite uma despesa ainda não cadastrada.");
+						dsDesp = "";
+					}
+				}
+				desp.setNome(dsDesp);
 				System.out.println("Digite um novo valor para essa despesa");
 				Double valor = null;
 				while (valor == null) {
@@ -190,8 +300,25 @@ public class AdicionaDespesas {
 						System.out.println("Digite um valor numérico.");
 					}
 				}
-
 				desp.setValor(valor);
+
+				while (desp.getTipoDespesa() == null) {
+					System.out.println("Por favor, adicione o tipo da despesa, 1 para fixo, 2 para variável.:");
+					int i = sc.nextInt();
+					try {
+						if (i == 1) {
+							desp.setTipoDespesa(TipoDespesa.FIXAS);
+						} else if (i == 2) {
+							desp.setTipoDespesa(TipoDespesa.VARIAVEIS);
+						} else {
+							System.out.println("Por favor, insira 1 para fixo, 2 para variável.:");
+						}
+					} catch (Exception ex) {
+						System.out.println("Selecione 1 para fixo ou 2 para variavel");
+						sc.next();
+					}
+				}
+
 				calc.atualizaDespesa(desp);
 				desp = new Despesa();
 				listaDespesas(-1);
@@ -200,12 +327,13 @@ public class AdicionaDespesas {
 
 		}
 	}
-	
+
 	/**
 	 * Permite deletar uma despesa através do id passado pelo usuário.
 	 */
 	private static void deletarDespesa() {
-		//verifica se as despesas estao vazias, se estiver, exibe mensagem e encerra a execução da função.
+		// verifica se as despesas estao vazias, se estiver, exibe mensagem e
+		// encerra a execução da função.
 		if (calc.obtemDespesas().isEmpty()) {
 			System.out.println("Não há despesas para serem deletadas.");
 			return;
@@ -214,18 +342,25 @@ public class AdicionaDespesas {
 		System.out.println("Insira o id da despesa que deseja deletar conforme abaixo:");
 		listaDespesas(-1);
 		Integer v = null;
-		
-		//faz com que o usuário digite um valor inteiro.
+
+		// faz com que o usuário digite um valor inteiro.
 		while (v == null) {
 			try {
 				v = sc.nextInt();
+				if (calc.obtemDespesa(v) == null) {
+					v = null;
+					System.out.println("Digite um valor inteiro dentre os id's mostrados abaixo");
+					listaDespesas(-1);
+					sc.next();
+				}
 			} catch (Exception ex) {
 				System.out.println("Digite um valor inteiro dentre os id's mostrados abaixo");
 				listaDespesas(-1);
+				sc.next();
 			}
 		}
 		System.out.println("Deseja deletar esse produto? " + calc.obtemDespesa(v) + " 1 - Sim, 0 - Não");
-		//confirma se o usuário deseja realmente deletar o produto selecionado.
+		// confirma se o usuário deseja realmente deletar o produto selecionado.
 		try {
 			if (sc.nextInt() == 1) {
 				calc.removeDespesa(v);
@@ -240,16 +375,17 @@ public class AdicionaDespesas {
 	 * Permite fazer busca por id dentre a lista de despesas.
 	 */
 	private static void selecionarDespesa() {
-		//verifica se as despesas estao vazias, se estiver, exibe mensagem e encerra a execução da função.
+		// verifica se as despesas estao vazias, se estiver, exibe mensagem e
+		// encerra a execução da função.
 		if (calc.obtemDespesas().isEmpty()) {
 			System.out.println("Não há despesas para serem listadas.");
 			return;
 		}
-		
+
 		System.out.println("Insira o id de alguma despesa que deseja selecionar:");
 		Integer v = null;
-		
-		//faz com que o usuário digite um valor inteiro.
+
+		// faz com que o usuário digite um valor inteiro.
 		while (v == null) {
 			try {
 				v = sc.nextInt();
@@ -257,8 +393,8 @@ public class AdicionaDespesas {
 				System.out.println("Digite um valor inteiro.");
 			}
 		}
-		
-		//busca pelo id da despesa.
+
+		// busca pelo id da despesa.
 		try {
 			listaDespesas(v);
 		} catch (Exception ex) {
