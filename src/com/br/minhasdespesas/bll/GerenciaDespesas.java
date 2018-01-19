@@ -1,13 +1,10 @@
 package com.br.minhasdespesas.bll;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.br.minhasdespesas.enums.TipoDespesa;
 import com.br.minhasdespesas.model.Despesa;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class GerenciaDespesas {
 
@@ -24,16 +21,14 @@ public class GerenciaDespesas {
 	 */
 	public void adicionaDespesa(Despesa despesa) {
 		despesa.setId(id);
-		if (despesa != null) {
-			totalDespesas.add(despesa);
-		}
+		totalDespesas.add(despesa);
 		id++;
 	}
 
 	/**
 	 * Remove uma despesa atraves do id fornecido.
 	 * 
-	 * @param despesa
+	 * @param id
 	 */
 	public Despesa removeDespesa(int id) {
 		Despesa despesa = obtemDespesa(id);
@@ -48,7 +43,8 @@ public class GerenciaDespesas {
 	 * @return
 	 */
 	public Despesa obtemDespesa(int id) {
-		List<Despesa> despesas = totalDespesas.stream().filter(x -> x.getId() == id).collect(Collectors.toList());
+		List<Despesa> despesas = totalDespesas.stream().filter(x -> x.getId() == id)
+					.collect(Collectors.toList());
 		if (!despesas.isEmpty()) {
 			return despesas.get(0);
 		} else {
@@ -63,7 +59,8 @@ public class GerenciaDespesas {
 	 * @return
 	 */
 	public List<Despesa> listaDespesasPorTipo(TipoDespesa tpDespesa) {
-		return totalDespesas.stream().filter(x -> x.getTipoDespesa() == tpDespesa).collect(Collectors.toList());
+		return totalDespesas.stream().filter(x -> x.getTipoDespesa() == tpDespesa)
+					.collect(Collectors.toList());
 	}
 
 	/**
@@ -84,16 +81,13 @@ public class GerenciaDespesas {
 	 * @return
 	 */
 	public List<Despesa> obtemDespesas() {
-		Collections.sort(totalDespesas, new Comparator<Despesa>() {
-			@Override
-			public int compare(Despesa e1, Despesa e2) {
-				if (e1.getId() < e2.getId()) {
-					return 1;
-				} else {
-					return -1;
-				}
-			}
-		});
+		totalDespesas.sort((e1, e2) -> {
+            if (e1.getId() < e2.getId()) {
+                return 1;
+            } else {
+                return -1;
+            }
+        });
 		return totalDespesas;
 	}
 
@@ -132,8 +126,9 @@ public class GerenciaDespesas {
 	 * @return
 	 */
 	public boolean validaSeNomeExisteNaLista(String nome) {
-		return !this.totalDespesas.stream().filter(x -> x.getNome().equalsIgnoreCase(nome)).collect(Collectors.toList())
-				.isEmpty();
+		return !this.totalDespesas.stream().filter(x -> x.getNome().equalsIgnoreCase(nome))
+						.collect(Collectors.toList())
+						.isEmpty();
 	}
 
 }

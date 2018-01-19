@@ -99,7 +99,17 @@ public class StartDespesas {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
+		} finally {
+			if(writer != null){
+				try {
+					writer.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
+
+
 
 		try {
 			writer.write("Despesas geradas por: " + resp.getNome() + ", cuja a idade é: " + resp.getIdade() + "\n");
