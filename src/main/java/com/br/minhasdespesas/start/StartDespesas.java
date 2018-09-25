@@ -99,14 +99,6 @@ public class StartDespesas {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
-		} finally {
-			if(writer != null){
-				try {
-					writer.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
 
 
