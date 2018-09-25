@@ -1,10 +1,11 @@
 package com.br.minhasdespesas.bll;
 
-import com.br.minhasdespesas.enums.TipoDespesa;
-import com.br.minhasdespesas.model.Despesa;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.br.minhasdespesas.enums.TipoDespesa;
+import com.br.minhasdespesas.model.Despesa;
 
 public class GerenciaDespesas {
 
